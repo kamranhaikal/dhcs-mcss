@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Medi-Cal Intelligence | DHCS Publication Monitor</title>
+    <meta name="description" content="Search official DHCS MCSS news, provider bulletins, public notices, and system alerts in one focused publication feed." />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#171b21" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Medi-Cal" />
+    <meta property="og:title" content="Medi-Cal Intelligence" />
+    <meta property="og:description" content="A fast, searchable monitor for official DHCS MCSS publications." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/opengraph.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Medi-Cal Intelligence" />
+    <meta name="twitter:description" content="A fast, searchable monitor for official DHCS MCSS publications." />
+    <meta name="twitter:image" content="/opengraph.jpg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="Medi-Cal Intelligence — RSS" href="https://dhcs-mcss.duckdns.org/api/rss.xml" />
+    <link rel="alternate" type="application/feed+json" title="Medi-Cal Intelligence — JSON Feed" href="https://dhcs-mcss.duckdns.org/api/feed.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("mci-theme");
+        const theme = savedTheme === "light" || savedTheme === "dark"
+          ? savedTheme
+          : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

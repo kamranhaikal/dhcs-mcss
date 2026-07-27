@@ -1,0 +1,16 @@
+{
+  "preset": "kam2-medi-cal-mobile-intelligence",
+  "donors": [
+    "attio:color,motion",
+    "linear:type"
+  ],
+  "patterns": [
+    "slide-in-drawer-scrim",
+    "soft-tag-palette"
+  ],
+  "note": "Theme lock — /compose and the web-design-taste skill reuse these donors instead of remixing. Regenerate with tooling/exemplar-preset.mjs --out.",
+  "layout": {
+    "archetype": "dense-grid",
+    "donor": "mcmaster"
+  }
+}
