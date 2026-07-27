@@ -1280,6 +1280,7 @@ svg {
 @media (min-width: 840px) {
   .feed-pop-desktop { display: block; }
   .feed-pop-mobile { display: none; }
+  .app-header.is-feed-open { z-index: 62; }
 }
 .feed-menu {
   width: 100%;

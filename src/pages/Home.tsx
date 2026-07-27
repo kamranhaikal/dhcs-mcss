@@ -484,7 +484,7 @@ export default function Home() {
     <div className="app-shell">
       <a className="skip-link" href="#updates">Skip to updates</a>
 
-      <header className="app-header">
+      <header className={`app-header ${feedMenuOpen ? "is-feed-open" : ""}`}>
         <div className="header-inner">
           <div className="brand-lockup">
             <span className="brand-mark" aria-hidden="true">MC</span>
@@ -495,6 +495,12 @@ export default function Home() {
           </div>
 
           <div className="header-actions">
+            <div className="feed-anchor desktop-only">
+              <button className="header-button" type="button" onClick={() => setFeedMenuOpen(true)} aria-haspopup="menu" aria-expanded={feedMenuOpen} title="Subscribe via RSS or JSON feed">
+                <PiRss aria-hidden="true" /> RSS
+              </button>
+              {feedMenuOpen && <div className="feed-pop feed-pop-desktop">{feedMenuContent}</div>}
+            </div>
             <button className="header-button about-trigger" type="button" onClick={() => setAboutOpen(true)} aria-expanded={aboutOpen} aria-controls="about-monitor">
               About
             </button>
@@ -505,6 +511,15 @@ export default function Home() {
               </button>
             )}
             <button
+              className="icon-button"
+              type="button"
+              onClick={() => refetch()}
+              aria-label="Refresh updates"
+              title="Refresh updates"
+            >
+              <PiArrowClockwise className={isFetching ? "is-spinning" : ""} aria-hidden="true" />
+            </button>
+            <button
               className="icon-button desktop-only"
               type="button"
               onClick={() => updateParams({ view: "bookmarked" })}
@@ -513,6 +528,9 @@ export default function Home() {
             >
               <PiBookmarkSimple aria-hidden="true" />
             </button>
+            <a className="icon-button desktop-only" href="/api/export.xlsx" aria-label="Download Excel" title="Download Excel">
+              <PiDownloadSimple aria-hidden="true" />
+            </a>
             <button
               className="icon-button"
               type="button"
@@ -522,18 +540,6 @@ export default function Home() {
             >
               {theme === "dark" ? <PiSun aria-hidden="true" /> : <PiMoon aria-hidden="true" />}
             </button>
-            <button
-              className="icon-button"
-              type="button"
-              onClick={() => refetch()}
-              aria-label="Refresh updates"
-              title="Refresh updates"
-            >
-              <PiArrowClockwise className={isFetching ? "is-spinning" : ""} aria-hidden="true" />
-            </button>
-            <a className="icon-button desktop-only" href="/api/export.xlsx" aria-label="Download Excel" title="Download Excel">
-              <PiDownloadSimple aria-hidden="true" />
-            </a>
           </div>
         </div>
       </header>
@@ -571,14 +577,6 @@ export default function Home() {
             <p className="eyebrow">Independent monitor of official DHCS publications</p>
             <h1 id="page-title">Find the update that changes your work.</h1>
             <p>Search official Medi-Cal news, bulletins, public notices, and system alerts in one focused feed.</p>
-          </div>
-          <div className="intro-links desktop-only">
-            <div className="feed-anchor">
-              <button type="button" onClick={() => setFeedMenuOpen(true)} aria-haspopup="menu" aria-expanded={feedMenuOpen} title="Subscribe via RSS or JSON feed">
-                <PiRss aria-hidden="true" /> RSS
-              </button>
-              {feedMenuOpen && <div className="feed-pop feed-pop-desktop">{feedMenuContent}</div>}
-            </div>
           </div>
         </section>
 
