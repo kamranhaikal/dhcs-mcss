@@ -495,15 +495,15 @@ export default function Home() {
           </div>
 
           <div className="header-actions">
+            <button className="header-button about-trigger" type="button" onClick={() => setAboutOpen(true)} aria-expanded={aboutOpen} aria-controls="about-monitor">
+              About
+            </button>
             <div className="feed-anchor desktop-only">
               <button className="header-button" type="button" onClick={() => setFeedMenuOpen(true)} aria-haspopup="menu" aria-expanded={feedMenuOpen} title="Subscribe via RSS or JSON feed">
                 <PiRss aria-hidden="true" /> RSS
               </button>
               {feedMenuOpen && <div className="feed-pop feed-pop-desktop">{feedMenuContent}</div>}
             </div>
-            <button className="header-button about-trigger" type="button" onClick={() => setAboutOpen(true)} aria-expanded={aboutOpen} aria-controls="about-monitor">
-              About
-            </button>
             {installPrompt && (
               <button className="header-button install-button" type="button" onClick={installApp}>
                 <PiDeviceMobile aria-hidden="true" />
