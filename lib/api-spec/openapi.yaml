@@ -1,0 +1,296 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: news
+    description: Medi-Cal news operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /news:
+    get:
+      operationId: listNews
+      tags: [news]
+      summary: List Medi-Cal news items and bulletins
+      description: Returns all news items when limit is omitted (legacy behavior), or a page when limit is supplied.
+      parameters:
+        - name: q
+          in: query
+          description: Case-insensitive keyword search (matches title, summary, and body)
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category name (exact match)
+          required: false
+          schema:
+            type: string
+        - name: month
+          in: query
+          description: Filter by monthYear bucket (e.g. "January 2024")
+          required: false
+          schema:
+            type: string
+        - name: source
+          in: query
+          description: Filter by source — "news", "bulletin", "alert", or "public_notice"
+          required: false
+          schema:
+            type: string
+            enum: [news, bulletin, alert, public_notice]
+        - name: classification
+          in: query
+          description: Filter by classification — "informational" or "regulatory"
+          required: false
+          schema:
+            type: string
+            enum: [informational, regulatory]
+        - name: hpMapping
+          in: query
+          description: Filter by HP mapping (exact match)
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Page size; omit to retain legacy all-items behavior
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Zero-based page offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: includeBody
+          in: query
+          description: Set false to return null bodies in list items
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of news items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsListResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /news/{id}:
+    get:
+      operationId: getNewsItem
+      tags: [news]
+      summary: Get one complete news item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Stable URL-safe identifier returned by the list endpoint
+          schema:
+            type: string
+            minLength: 43
+            maxLength: 43
+            pattern: "^[A-Za-z0-9_-]{43}$"
+      responses:
+        "200":
+          description: Complete news item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsItem"
+        "404":
+          description: Item not found
+  /news/meta:
+    get:
+      operationId: getNewsMeta
+      tags: [news]
+      summary: News filter metadata
+      description: Returns all available categories and month/year buckets for populating filter dropdowns.
+      responses:
+        "200":
+          description: Filter metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsMetaResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    NewsItem:
+      type: object
+      required:
+        - id
+        - title
+        - link
+        - summary
+        - publishedDate
+        - postedAt
+        - publishedLabel
+        - categories
+        - monthYear
+        - source
+        - classification
+        - hpMappings
+        - affectedEntities
+        - actionRequired
+        - actionSummary
+        - effectiveDate
+        - deadlineDate
+        - keyPrograms
+        - changeStatus
+        - extractionConfidence
+      properties:
+        id:
+          type: string
+          description: Stable URL-safe identifier for the item-detail endpoint
+        title:
+          type: string
+        link:
+          type: string
+        summary:
+          type: string
+        publishedDate:
+          type: string
+          format: date-time
+        revisedDate:
+          type: ["string", "null"]
+          format: date-time
+        postedAt:
+          type: string
+          format: date-time
+          description: Best-available literal timestamp (date + time) of when the item was posted at the source
+        publishedLabel:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        monthYear:
+          type: string
+        body:
+          type: ["string", "null"]
+          description: Full HTML body of the article; null for bulletins
+        source:
+          type: string
+          enum: [news, bulletin, alert, public_notice]
+        classification:
+          type: string
+          enum: [informational, regulatory]
+        hpMappings:
+          type: array
+          description: HP internal category tags derived from DHCS baseline mapping plus content analysis
+          items:
+            type: string
+        affectedEntities:
+          type: array
+          description: Inferred from explicit source wording only; empty when no bounded evidence is found
+          items:
+            type: string
+        actionRequired:
+          type: boolean
+          description: Inferred from explicit action language in source text; not a DHCS-authored determination
+        actionSummary:
+          type: ["string", "null"]
+          description: Literal source sentence supporting actionRequired; null when uncertain
+        effectiveDate:
+          type: ["string", "null"]
+          description: Literal source date following an explicit effective-date cue; null when uncertain
+        deadlineDate:
+          type: ["string", "null"]
+          description: Literal source date following an explicit deadline cue; null when uncertain
+        keyPrograms:
+          type: array
+          description: Explicit program or coding terms from source text only
+          items:
+            type: string
+        changeStatus:
+          type: string
+          enum: [new, revised]
+          description: revised only when revisedDate is later than publishedDate; safe for future recently-revised filtering
+        extractionConfidence:
+          type: string
+          enum: [low, medium, high]
+          description: Confidence in deterministic, source-bounded inferred metadata; not model confidence
+    NewsListResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsItem"
+        total:
+          type: integer
+        limit:
+          type: integer
+          description: Returned only when pagination was requested
+        offset:
+          type: integer
+          description: Returned only when pagination was requested
+        hasMore:
+          type: boolean
+          description: Returned only when pagination was requested
+    NewsMetaResponse:
+      type: object
+      required:
+        - categories
+        - months
+      properties:
+        categories:
+          type: array
+          items:
+            type: string
+        months:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string

@@ -1,0 +1,2 @@
+- [Bulletin URL format](bulletin-url-format.md) — site uses slugify(community_name).toLowerCase() NOT community_abbrv for the ?community= param
+- [Directus collections](directus-collections.md) — news_articles + bulletins + system_alert are the 3 tracked sources; system_alert has nullable publish_date
