@@ -30,6 +30,10 @@ older, or built from something else entirely.
 
 ### Frontend
 
+*Every command below was run verbatim on 2026-07-27, from a fresh clone into a scratch docroot. That
+is how the three defects it used to contain were found. The Backend block has not had this — see the
+note there.*
+
 ```sh
 git checkout <commit>
 cd frontend
@@ -58,6 +62,21 @@ every one of those files at whatever the builder's umask gives. This command nor
 would serve equally well if you would rather tighten than match.
 
 ### Backend
+
+> **This sequence has NOT been executed as written.** The Frontend block above has — every command in
+> it was run verbatim on 2026-07-27, into a scratch docroot, which is how three defects in it were
+> found. This block has not had that treatment, so do not read its neighbour's proof as covering it.
+>
+> Why it was skipped rather than tested: `build.mjs` `rm -rf`s a hardcoded outdir that the running
+> `dhcs-api` service `ExecStart`s from (see below), so running it to check the doc risks the live API
+> for the sake of verifying prose. It needs a scratch copy of `backend/`, a spare port, and
+> `dhcs-api` left alone.
+>
+> **What it still owes:** run all five lines in that scratch copy from a fresh clone; confirm
+> `pnpm install --frozen-lockfile` succeeds there; confirm `build.mjs` writes where this block claims;
+> confirm the `systemctl restart` / `healthz` pair is the right check and not a truncated one — that
+> was exactly the bug in the frontend's feed check. Until then treat the commands below as *described*,
+> not *verified*.
 
 ```sh
 git checkout <commit>
