@@ -22,5 +22,5 @@
     }
   },
   "include": ["src/**/*", "lib-api-client-react/**/*"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"]
+  "exclude": ["node_modules", "build", "dist"]
 }

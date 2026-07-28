@@ -81,16 +81,21 @@ production comes from **this repo**. Before the consolidation, `apps/dhcs/artifa
 was mistaken for the live frontend source and cost three rounds of investigation — it is an
 obsolete fork, not the live UI.
 
-## Known broken
+## Checks
 
-**`frontend/npm run typecheck` — do not trust it.** It exits 0 on the deployment box and 127
-everywhere else. `typescript` is not a declared dependency and is not in `node_modules`; `npm run`
-falls through to `PATH` and picks up a stray `tsc` 6.0.3 belonging to an unrelated tool installed on
-this machine (the origin monorepo pinned `~5.9.3`). It also excludes `**/*.test.ts`, so test files
-are never checked. Green here, red on CI, and the greenness is an accident. Left as-is deliberately;
-fix it before wiring any CI that depends on it.
+Both run from `frontend/` and both need `pnpm install --frozen-lockfile` first — the toolchain is
+declared, not borrowed from `PATH`.
 
-`frontend/npm test` is fine — vitest is declared, installed, and its 10 tests pass.
+- **`npm run typecheck`** — `typescript` is a declared devDependency pinned `~5.9.3` (the version
+  this code was written against) and the script invokes `./node_modules/typescript/bin/tsc`
+  explicitly, so it cannot fall through to a `tsc` that happens to be on `PATH`. `**/*.test.ts` is
+  **not** excluded: the two vitest files are typechecked along with `src/` and
+  `lib-api-client-react/`.
+- **`npm test`** — vitest, 10 tests, 2 files.
+
+Until 2026-07-27 `typecheck` was a lie: `typescript` was undeclared and absent from the tree, so
+`npm run` fell through to `PATH` and found a stray `tsc` 6.0.3 belonging to an unrelated tool on the
+deployment box — exit 0 here, exit 127 anywhere else, and blind to the test files either way.
 
 ## Gotchas
 
