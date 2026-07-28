@@ -33,14 +33,29 @@ older, or built from something else entirely.
 ```sh
 git checkout <commit>
 cd frontend
-PORT=5173 BASE_PATH=/ npm run build          # vite.config.ts THROWS without both env vars, by design
+pnpm install --frozen-lockfile                # build fails ERR_MODULE_NOT_FOUND without this
+PORT=5173 BASE_PATH=/ npm run build           # vite.config.ts THROWS without both env vars, by design
 sudo cp -a /var/www/dhcs /home/ubuntu/docroot-backups/var-www-dhcs-$(date +%Y%m%d-%H%M%S)
-sudo rsync -a --delete-after --chown=caddy:caddy dist/public/ /var/www/dhcs/
+sudo rsync -a --delete-after --chown=caddy:caddy --chmod=D775,F664 dist/public/ /var/www/dhcs/
 ```
 
 `--delete-after` matters: asset filenames are content-hashed, so without deletion the old bundles
 linger as orphans and a half-updated docroot half-works. Docroot is owned `caddy:caddy`.
 Rollback is a copy-back from the backup — no rebuild, no Caddy reload.
+
+`--chmod` is not optional. `-a` implies `-p`, so without it rsync reproduces **the build
+directory's** permissions onto the docroot — including the docroot directory itself. Build in a
+`umask 077` scratch directory and you get 0700 dirs and 0600 files under `/var/www/dhcs`, and the
+docroot goes 0700 too. Caddy owns the files so the site keeps serving and `curl` keeps returning
+200; what breaks is everything else, starting with your own `ls`. That happened on 2026-07-27 and
+was caught only because the operator's next command was denied. Set the modes; never inherit them.
+
+`D775,F664` is the docroot's own state. Three files there are 0644 rather than 0664
+(`manifest.webmanifest`, `opengraph.jpg`, `sw.js`); that is umask residue, not intent — git stores
+no mode beyond the executable bit, all of `public/` is `100644`, and a fresh `vite build` writes
+every one of those files at whatever the builder's umask gives. This command normalises them to
+0664 on the next deploy. Nothing reads or writes the docroot as group `caddy`, so 0644 throughout
+would serve equally well if you would rather tighten than match.
 
 ### Backend
 
@@ -114,8 +129,13 @@ deployment box — exit 0 here, exit 127 anywhere else, and blind to the test fi
 curl -s -o /dev/null -w '%{http_code}\n' https://dhcs-mcss.duckdns.org/
 curl -s https://dhcs-mcss.duckdns.org/ | grep -oE 'src="/assets/[^"]*"'      # expect the NEW hash
 curl -s https://dhcs-mcss.duckdns.org/api/healthz                            # {"status":"ok"}
-curl -s https://dhcs-mcss.duckdns.org/api/feed.json | head -c 120            # feedUrl must be the duckdns host
+curl -s https://dhcs-mcss.duckdns.org/api/feed.json | grep -o '"feedUrl":"[^"]*"'
+find /var/www/dhcs -type d \! -perm -o=rx -o -type f \! -perm -o=r          # expect no output
 ```
 
 If `feedUrl` shows anything other than `https://dhcs-mcss.duckdns.org/api/feed.json`, an old backend
 bundle is running — roll back.
+
+The `find` catches a docroot rsynced without `--chmod` — see the Frontend section. It is deliberately
+an invariant ("nothing unreadable to other") rather than an exact-mode match, so it stays silent on
+the three 0644 files that predate this and speaks only when something is genuinely unreachable.
