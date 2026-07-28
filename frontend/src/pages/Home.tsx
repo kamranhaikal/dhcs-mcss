@@ -771,11 +771,11 @@ export default function Home() {
               </div>
             )}
           </aside>
-        </div>
 
-        <footer className="provenance-footer">
-          <strong>Independent monitor of official DHCS publications.</strong> Source-linked content should be verified at the direct official URL. Classification and health-plan mappings are inferred working labels, not official determinations.
-        </footer>
+          <footer className="provenance-footer">
+            <strong>Independent monitor of official DHCS publications.</strong> Source-linked content should be verified at the direct official URL. Classification and health-plan mappings are inferred working labels, not official determinations.
+          </footer>
+        </div>
       </main>
 
       <div className={`overlay-scrim ${filterOpen || detailOpen ? "is-open" : ""}`} onClick={() => { setFilterOpen(false); setDetailOpen(false); }} />

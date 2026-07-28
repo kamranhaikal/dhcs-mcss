@@ -1340,7 +1340,8 @@ svg {
 .tag-new { border-color: color-mix(in srgb, var(--app-accent) 24%, transparent) !important; background: var(--app-accent-soft) !important; color: var(--app-accent) !important; }
 .tag-unread { border-color: color-mix(in srgb, var(--app-success) 24%, transparent) !important; background: var(--app-success-soft) !important; color: var(--app-success) !important; }
 
-.provenance-footer { margin-top: var(--space-7); padding-top: var(--space-4); border-top: 1px solid var(--app-line); color: var(--app-muted); font-size: var(--text-xs); line-height: var(--leading-normal); }
+/* margin-top is the grid row gap's complement: gap + margin must stay --space-7. */
+.provenance-footer { margin-top: calc(var(--space-7) - var(--space-4)); padding-top: var(--space-4); border-top: 1px solid var(--app-line); color: var(--app-muted); font-size: var(--text-xs); line-height: var(--leading-normal); }
 .provenance-footer strong { color: var(--app-ink); }
 
 .not-found {
@@ -1520,6 +1521,10 @@ svg {
   .search-panel {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .provenance-footer {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (min-width: 1180px) {
@@ -1527,11 +1532,17 @@ svg {
     grid-template-columns: 230px minmax(420px, 1fr) minmax(340px, 0.78fr);
   }
 
+  .app-main {
+    padding-bottom: var(--space-5);
+  }
+
   .detail-panel {
     position: sticky;
     top: calc(var(--app-header-height) + var(--space-4));
+    grid-column: 3;
+    grid-row: 1 / span 2;
     display: block;
-    max-height: calc(100dvh - var(--app-header-height) - var(--space-7));
+    max-height: calc(100dvh - var(--app-header-height) - var(--space-4) - var(--space-5));
     overflow-y: auto;
     padding: var(--space-5);
     border: 1px solid var(--app-line);
@@ -1547,12 +1558,21 @@ svg {
   .mobile-detail {
     display: none;
   }
+
+  .provenance-footer {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
 }
 
 @media (min-width: 1380px) {
   .workspace-grid {
     grid-template-columns: 250px minmax(520px, 1.15fr) minmax(400px, 0.85fr);
     gap: var(--space-5);
+  }
+
+  .provenance-footer {
+    margin-top: calc(var(--space-7) - var(--space-5));
   }
 
   .header-inner {
